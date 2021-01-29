@@ -7,11 +7,14 @@ import { Row, Col } from 'antd';
 import Layout from 'components/Layout';
 import PokeCard from 'components/PokeCard';
 import SearchModal from 'components/SearchModal';
+import ModalMessage from 'components/ModalMessage';
 
 const Pokedex = () => {
   const [searchText, setSearchText] = useState('');
   const [isOpenSearchModal, setIsOpenSearchModal] = useState(false);
+  const [isOpenErrorModal, setIsOpenErrorModal] = useState(false);
   const [selectedPokeList, setSelectedPokeList] = useState([]);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const { data: response, error } = useSWR(
     'http://localhost:3030/api/cards',
@@ -20,7 +23,9 @@ const Pokedex = () => {
 
   useEffect(() => {
     if (error) {
-      // error modal
+      // API Down
+      setErrorMessage(error.message);
+      setIsOpenErrorModal(true);
     }
   }, [error]);
 
@@ -43,6 +48,10 @@ const Pokedex = () => {
 
   const handleOnChangeSearch = (value) => {
     setSearchText(value);
+  };
+
+  const handleOnCloseErrorModal = () => {
+    setIsOpenErrorModal(false);
   };
 
   const handleOnAddPoke = (poke) => {
@@ -91,6 +100,11 @@ const Pokedex = () => {
         open={isOpenSearchModal}
         onCancel={handleOnCloseModal}
         dataSource={filteredPokeList}
+      />
+      <ModalMessage
+        open={isOpenErrorModal}
+        onCancel={handleOnCloseErrorModal}
+        message={errorMessage}
       />
     </Layout>
   );
